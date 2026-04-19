@@ -7,7 +7,12 @@ export default defineConfig({
   server: {
     host: true,
     strictPort: false,
-    allowedHosts: true,
+    allowedHosts: [
+      'all',
+      '.trycloudflare.com',
+      'localhost',
+      '127.0.0.1'
+    ],
     proxy: {
       '/save-location': 'http://localhost:5000',
       '/save-login': 'http://localhost:5000'
