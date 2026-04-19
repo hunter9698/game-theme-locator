@@ -55,6 +55,13 @@ if ! command -v node &> /dev/null; then
     exit 1
 fi
 
+# --- PORT PROTECTION ---
+echo -e "${GREEN}[*] Clearing port conflicts...${NC}"
+if command -v fuser &> /dev/null; then
+    fuser -k "$PORT_BACKEND/tcp" &>/dev/null
+    fuser -k "$PORT_FRONTEND/tcp" &>/dev/null
+fi
+
 # 1. Setup Backend
 echo -e "${GREEN}[*] Initializing Nexus Backend...${NC}"
 cd "$BASE_DIR/backend"
