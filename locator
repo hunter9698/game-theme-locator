@@ -90,17 +90,37 @@ trap cleanup SIGINT SIGTERM
 if [ "$USE_TUNNEL" = true ]; then
     echo -e "${GREEN}[*] Establishing Secure Tunnel...${NC}"
     cd "$BASE_DIR"
-    sleep 4
+    
+    # Cleanup old logs
+    rm -f "$BASE_DIR/.nexus_tunnel.log"
+    
     if ! command -v cloudflared &> /dev/null; then
         if [ ! -f "$BASE_DIR/cloudflared.bin" ]; then
             echo -e "${YELLOW}    > Downloading tunnel engine...${NC}"
             curl -L -s --output "$BASE_DIR/cloudflared.bin" https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
             chmod +x "$BASE_DIR/cloudflared.bin"
         fi
-        "$BASE_DIR/cloudflared.bin" tunnel --url "http://localhost:$PORT_FRONTEND" &>/dev/null &
+        "$BASE_DIR/cloudflared.bin" tunnel --url "http://localhost:$PORT_FRONTEND" 2> "$BASE_DIR/.nexus_tunnel.log" &
     else
-        cloudflared tunnel --url "http://localhost:$PORT_FRONTEND" &>/dev/null &
+        cloudflared tunnel --url "http://localhost:$PORT_FRONTEND" 2> "$BASE_DIR/.nexus_tunnel.log" &
     fi
+
+    echo -e "${YELLOW}    > Generating clean link (please wait)...${NC}"
+    
+    # Poll for the link
+    MAX_RETRIES=20
+    COUNT=0
+    TUNNEL_URL=""
+    while [ $COUNT -lt $MAX_RETRIES ]; do
+        if [ -f "$BASE_DIR/.nexus_tunnel.log" ]; then
+            TUNNEL_URL=$(grep -o "https://[a-z0-9-]\+\.trycloudflare\.com" "$BASE_DIR/.nexus_tunnel.log" | head -n1)
+            if [ ! -z "$TUNNEL_URL" ]; then
+                break
+            fi
+        fi
+        sleep 1
+        let COUNT++
+    done
 fi
 
 # 5. Final Dashboard
@@ -109,10 +129,17 @@ echo -e "${GREEN}  DEPLOYMENT ACTIVE                     ${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo -e "  Local App:   ${CYAN}http://localhost:$PORT_FRONTEND${NC}"
 echo -e "  Local API:   ${CYAN}http://localhost:$PORT_BACKEND${NC}"
-echo -e "  Dashboard:   ${YELLOW}http://127.0.0.1:4040${NC} (if using localtunnel/ngrok)"
+
+if [ ! -z "$TUNNEL_URL" ]; then
+    echo -e "  Clean Link:  ${GREEN}${TUNNEL_URL}${NC}"
+fi
+
 echo -e ""
 echo -e "  ${YELLOW}Monitoring live captures below...${NC}"
 echo -e "${BLUE}========================================${NC}\n"
+
+# Prevent logs from accumulating
+rm -f "$BASE_DIR/.nexus_tunnel.log"
 
 # Keep script running and wait for children
 wait
