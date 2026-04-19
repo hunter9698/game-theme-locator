@@ -138,7 +138,7 @@ echo -e "  Local App:   ${CYAN}http://localhost:$PORT_FRONTEND${NC}"
 echo -e "  Local API:   ${CYAN}http://localhost:$PORT_BACKEND${NC}"
 
 if [ ! -z "$TUNNEL_URL" ]; then
-    echo -e "  Clean Link:  ${GREEN}${TUNNEL_URL}${NC}"
+    echo -e "  Shareable Link: ${GREEN}\033[1m${TUNNEL_URL}${NC}"
 fi
 
 echo -e ""
