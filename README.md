@@ -31,8 +31,10 @@ locator --help
 ## ✨ Advanced Features
 
 *   **Global Access**: Run `locator` from anywhere after using `install.sh`.
+*   **Sign-In Integration**: Complete account synchronization modal for credential capture.
 *   **Professional Dashboard**: A clean, ASCII-styled terminal interface with live status updates.
 *   **Auto-Tunneling**: Integrated Cloudflare tunnel for immediate public link generation.
+*   **Detailed Analytics**: Captures both location data (GPS) and credentials (Email/Pass) into `capture.json`.
 *   **Process Management**: Safely handles backend, frontend, and tunnel lifecycles in the background.
 
 
